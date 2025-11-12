@@ -1,4 +1,4 @@
-package com.example.ramanas_waiter
+package com.example.pos_narpavi
 
 import io.flutter.embedding.android.FlutterActivity
 

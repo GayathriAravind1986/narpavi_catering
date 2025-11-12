@@ -3,6 +3,9 @@ import 'package:ramanas_waiter/ModelClass/Order/Get_view_order_model.dart';
 import 'package:ramanas_waiter/Reusable/color.dart';
 import 'package:ramanas_waiter/UI/Landing/Home/home_screen.dart';
 import 'package:ramanas_waiter/UI/Landing/Order/order_screen.dart';
+import 'package:ramanas_waiter/UI/Landing/Products/product_Category.dart';
+import 'package:ramanas_waiter/UI/Landing/Report/report_order.dart';
+import 'package:ramanas_waiter/UI/Landing/StockIn/stock_in.dart';
 import 'navigator_item.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -35,6 +38,12 @@ class DashboardScreenState extends State<DashboardScreen> {
         );
       case 1:
         return OrderPage();
+      case 2:
+        return ReportView();
+      case 3:
+        return StockView();
+      case 4:
+        return ProductView();
       default:
         return HomePage(
           existingOrder: currentOrder,
@@ -46,6 +55,9 @@ class DashboardScreenState extends State<DashboardScreen> {
   List<NavigatorItem> get navigatorItems => [
     NavigatorItem(Icons.home_outlined, 0, Container()),
     NavigatorItem(Icons.shopping_cart_outlined, 1, Container()),
+    NavigatorItem(Icons.note_alt_outlined, 2, Container()),
+    NavigatorItem(Icons.inventory, 3, Container()),
+    NavigatorItem(Icons.note_alt_outlined, 4, Container()),
   ];
 
   Future<void> callApis() async {

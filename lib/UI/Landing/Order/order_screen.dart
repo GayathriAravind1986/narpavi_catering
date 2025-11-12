@@ -431,18 +431,18 @@ class OrderPageViewState extends State<OrderPageView>
                           ),
                         ),
                       ),
-                      // Expanded(
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.all(8.0),
-                      //     child: Text(
-                      //       'Select Operator',
-                      //       style: MyTextStyle.f14(
-                      //         blackColor,
-                      //         weight: FontWeight.bold,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Select Operator',
+                            style: MyTextStyle.f14(
+                              blackColor,
+                              weight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   Row(
@@ -598,82 +598,82 @@ class OrderPageViewState extends State<OrderPageView>
                           ),
                         ),
                       ),
-                      // User Dropdown
-                      // Expanded(
-                      //   child: Container(
-                      //     margin: const EdgeInsets.all(8),
-                      //     child: DropdownButtonFormField<String>(
-                      //       value:
-                      //           (getUserModel.data?.any(
-                      //                 (item) => item.name == selectedValueUser,
-                      //               ) ??
-                      //               false)
-                      //           ? selectedValueUser
-                      //           : null,
-                      //       icon: const Icon(
-                      //         Icons.arrow_drop_down,
-                      //         color: appPrimaryColor,
-                      //       ),
-                      //       isExpanded: true,
-                      //       decoration: InputDecoration(
-                      //         border: OutlineInputBorder(
-                      //           borderRadius: BorderRadius.circular(8),
-                      //           borderSide: const BorderSide(
-                      //             color: appPrimaryColor,
-                      //           ),
-                      //         ),
-                      //         enabledBorder: OutlineInputBorder(
-                      //           borderSide: BorderSide(
-                      //             color: appGreyColor,
-                      //             width: 1.5,
-                      //           ),
-                      //           borderRadius: BorderRadius.circular(8),
-                      //         ),
-                      //         focusedBorder: OutlineInputBorder(
-                      //           borderSide: BorderSide(
-                      //             color: appPrimaryColor,
-                      //             width: 1.5,
-                      //           ),
-                      //           borderRadius: BorderRadius.circular(8),
-                      //         ),
-                      //       ),
-                      //       items: getUserModel.data?.map((item) {
-                      //         return DropdownMenuItem<String>(
-                      //           value: item.name,
-                      //           child: Text(
-                      //             "${item.name}",
-                      //             style: MyTextStyle.f14(
-                      //               blackColor,
-                      //               weight: FontWeight.normal,
-                      //             ),
-                      //           ),
-                      //         );
-                      //       }).toList(),
-                      //       onChanged: (String? newValue) {
-                      //         if (newValue != null) {
-                      //           setState(() {
-                      //             selectedValueUser = newValue;
-                      //             final selectedItem = getUserModel.data
-                      //                 ?.firstWhere(
-                      //                   (item) => item.name == newValue,
-                      //                 );
-                      //             userId = selectedItem?.id.toString();
-                      //             debugPrint("operatorSelectr:$userId");
-                      //           });
-                      //
-                      //           _loadOrdersForCurrentTab();
-                      //         }
-                      //       },
-                      //       hint: Text(
-                      //         '-- Select Operator --',
-                      //         style: MyTextStyle.f14(
-                      //           blackColor,
-                      //           weight: FontWeight.normal,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                      //User Dropdown
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.all(8),
+                          child: DropdownButtonFormField<String>(
+                            value:
+                                (getUserModel.data?.any(
+                                      (item) => item.name == selectedValueUser,
+                                    ) ??
+                                    false)
+                                ? selectedValueUser
+                                : null,
+                            icon: const Icon(
+                              Icons.arrow_drop_down,
+                              color: appPrimaryColor,
+                            ),
+                            isExpanded: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                  color: appPrimaryColor,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: appGreyColor,
+                                  width: 1.5,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: appPrimaryColor,
+                                  width: 1.5,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            items: getUserModel.data?.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item.name,
+                                child: Text(
+                                  "${item.name}",
+                                  style: MyTextStyle.f14(
+                                    blackColor,
+                                    weight: FontWeight.normal,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  selectedValueUser = newValue;
+                                  final selectedItem = getUserModel.data
+                                      ?.firstWhere(
+                                        (item) => item.name == newValue,
+                                      );
+                                  userId = selectedItem?.id.toString();
+                                  debugPrint("operatorSelectr:$userId");
+                                });
+
+                                _loadOrdersForCurrentTab();
+                              }
+                            },
+                            hint: Text(
+                              '-- Select Operator --',
+                              style: MyTextStyle.f14(
+                                blackColor,
+                                weight: FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   TabBar(
@@ -1093,7 +1093,7 @@ class OrderPageViewState extends State<OrderPageView>
           flexibleSpace: Container(
             width: double.infinity,
             color: whiteColor,
-            padding: const EdgeInsets.only(top: 28, left: 20, right: 20),
+            padding: const EdgeInsets.only(top: 28, left: 20, right: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

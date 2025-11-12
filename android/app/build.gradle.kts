@@ -28,7 +28,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.ramanas_waiter"
+    namespace = "com.example.pos_narpavi"
     compileSdk = 35
     ndkVersion = "27.0.12077973"
 
@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.ramanas_waiter"
+        applicationId = "com.example.pos_narpavi"
         minSdk = 28
         targetSdk = 34
         versionCode = 5

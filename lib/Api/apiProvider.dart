@@ -11,7 +11,13 @@ import 'package:ramanas_waiter/ModelClass/Order/Get_view_order_model.dart';
 import 'package:ramanas_waiter/ModelClass/Order/Post_generate_order_model.dart';
 import 'package:ramanas_waiter/ModelClass/Order/Update_generate_order_model.dart';
 import 'package:ramanas_waiter/ModelClass/Order/get_order_list_today_model.dart';
+import 'package:ramanas_waiter/ModelClass/Products/get_products_cat_model.dart';
+import 'package:ramanas_waiter/ModelClass/Report/Get_report_with_ordertype_model.dart';
 import 'package:ramanas_waiter/ModelClass/ShopDetails/getStockMaintanencesModel.dart';
+import 'package:ramanas_waiter/ModelClass/StockIn/getLocationModel.dart';
+import 'package:ramanas_waiter/ModelClass/StockIn/getSupplierLocationModel.dart';
+import 'package:ramanas_waiter/ModelClass/StockIn/get_add_product_model.dart';
+import 'package:ramanas_waiter/ModelClass/StockIn/saveStockInModel.dart';
 import 'package:ramanas_waiter/ModelClass/Table/Get_table_model.dart';
 import 'package:ramanas_waiter/ModelClass/User/getUserModel.dart';
 import 'package:ramanas_waiter/ModelClass/Waiter/getWaiterModel.dart';
@@ -34,7 +40,7 @@ class ApiProvider {
   /// LoginWithOTP API Integration
   Future<PostLoginModel> loginAPI(String email, String password) async {
     try {
-      final dataMap = {"email": email, "password": password, "isWaiter": true};
+      final dataMap = {"email": email, "password": password};
       var data = json.encode(dataMap);
       var dio = Dio();
       var response = await dio.request(
@@ -592,6 +598,274 @@ class ApiProvider {
       return GetOrderListTodayModel()..errorResponse = errorResponse;
     } catch (error) {
       return GetOrderListTodayModel()..errorResponse = handleError(error);
+    }
+  }
+
+  /// ReportToday - Fetch API Integration
+  Future<GetReportModel> getReportTodayAPI(
+    String? fromDate,
+    String? toDate,
+    String? tableId,
+    String? waiterId,
+    String? operatorId,
+  ) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    debugPrint(
+      "baseUrlReport:'${Constants.baseUrl}api/generate-order/sales-reportwithordertype?from_date=$fromDate&to_date=$toDate&limit=200&tableNo=$tableId&waiter=$waiterId&operator=$operatorId",
+    );
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}api/generate-order/sales-reportwithordertype?from_date=$fromDate&to_date=$toDate&limit=200&tableNo=$tableId&waiter=$waiterId&operator=$operatorId',
+        options: Options(
+          method: 'GET',
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetReportModel getReportListTodayResponse = GetReportModel.fromJson(
+            response.data,
+          );
+          return getReportListTodayResponse;
+        }
+      } else {
+        return GetReportModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetReportModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetReportModel()..errorResponse = errorResponse;
+    } catch (error) {
+      return GetReportModel()..errorResponse = handleError(error);
+    }
+  }
+
+  /// products-Category - Fetch API Integration
+  Future<GetProductsCatModel> getProductsCatAPI(String? catId) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}api/products/pos/category-products-with-category?filter=false&categoryId=$catId',
+        options: Options(
+          method: 'GET',
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetProductsCatModel getProductsCatResponse =
+              GetProductsCatModel.fromJson(response.data);
+          return getProductsCatResponse;
+        }
+      } else {
+        return GetProductsCatModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetProductsCatModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetProductsCatModel()..errorResponse = errorResponse;
+    } catch (error) {
+      return GetProductsCatModel()..errorResponse = handleError(error);
+    }
+  }
+
+  /***** Stock_In*****/
+  /// Location - fetch API Integration
+  Future<GetLocationModel> getLocationAPI() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    debugPrint("token:$token");
+
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}auth/users/bylocation',
+        options: Options(
+          method: 'GET',
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetLocationModel getLocationResponse = GetLocationModel.fromJson(
+            response.data,
+          );
+          return getLocationResponse;
+        }
+      } else {
+        return GetLocationModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetLocationModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetLocationModel()..errorResponse = errorResponse;
+    } catch (error) {
+      final errorResponse = handleError(error);
+      return GetLocationModel()..errorResponse = errorResponse;
+    }
+  }
+
+  /// Supplier - fetch API Integration
+  Future<GetSupplierLocationModel> getSupplierAPI(String? locationId) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    debugPrint("token:$token");
+
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}api/supplier?isDefault=true&filter=false&locationId=$locationId',
+        options: Options(
+          method: 'GET',
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetSupplierLocationModel getSupplierResponse =
+              GetSupplierLocationModel.fromJson(response.data);
+          return getSupplierResponse;
+        }
+      } else {
+        return GetSupplierLocationModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetSupplierLocationModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetSupplierLocationModel()..errorResponse = errorResponse;
+    } catch (error) {
+      final errorResponse = handleError(error);
+      return GetSupplierLocationModel()..errorResponse = errorResponse;
+    }
+  }
+
+  /// Add Product - fetch API Integration
+  Future<GetAddProductModel> getAddProductAPI(String? locationId) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    debugPrint("token:$token");
+
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}api/products?isStock=true&filter=false&locationId=$locationId',
+        options: Options(
+          method: 'GET',
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetAddProductModel getAddProductResponse =
+              GetAddProductModel.fromJson(response.data);
+          return getAddProductResponse;
+        }
+      } else {
+        return GetAddProductModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetAddProductModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetAddProductModel()..errorResponse = errorResponse;
+    } catch (error) {
+      final errorResponse = handleError(error);
+      return GetAddProductModel()..errorResponse = errorResponse;
+    }
+  }
+
+  /// Save StockIn - Post API Integration
+
+  Future<SaveStockInModel> postSaveStockInAPI(
+    final String stockInPayloadJson,
+  ) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    debugPrint("payload:$stockInPayloadJson");
+    try {
+      var data = stockInPayloadJson;
+      debugPrint("data:$data");
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}api/stock',
+        options: Options(
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: data,
+      );
+      if (response.statusCode == 201 && response.data != null) {
+        try {
+          SaveStockInModel postGenerateOrderResponse =
+              SaveStockInModel.fromJson(response.data);
+          return postGenerateOrderResponse;
+        } catch (e) {
+          return SaveStockInModel()
+            ..errorResponse = ErrorResponse(
+              message: "Failed to parse response: $e",
+            );
+        }
+      } else {
+        return SaveStockInModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return SaveStockInModel()..errorResponse = errorResponse;
+    } catch (error) {
+      return SaveStockInModel()..errorResponse = handleError(error);
     }
   }
 

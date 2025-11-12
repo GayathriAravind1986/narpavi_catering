@@ -14574,7 +14574,7 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
           flexibleSpace: Container(
             width: double.infinity,
             color: whiteColor,
-            padding: const EdgeInsets.only(top: 28, left: 20, right: 20),
+            padding: const EdgeInsets.only(top: 28, left: 20, right: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
