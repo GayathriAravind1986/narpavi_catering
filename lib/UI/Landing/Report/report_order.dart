@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -1499,11 +1500,17 @@ class ReportViewViewState extends State<ReportViewView> {
                               onPressed: () async {
                                 showDialog(
                                   context: context,
-                                  builder: (context) =>
-                                      ThermalReportReceiptDialog(
-                                        getReportModel,
-                                        showItems: includeProduct,
-                                      ),
+                                  barrierColor: blackColor.withOpacity(0.3),
+                                  builder: (context) => BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: 5,
+                                      sigmaY: 5,
+                                    ),
+                                    child: ThermalReportReceiptDialog(
+                                      getReportModel,
+                                      showItems: includeProduct,
+                                    ),
+                                  ),
                                 );
                               },
                               icon: const Icon(Icons.print),

@@ -36,7 +36,7 @@ Widget getReportReceiptWidget({
   required bool showItems,
 }) {
   return Container(
-    width: 384,
+    width: 280,
     color: whiteColor,
     child: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -68,18 +68,12 @@ Widget getReportReceiptWidget({
                 const SizedBox(height: 4),
                 Text(
                   address,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: blackColor,
-                  ),
+                  style: const TextStyle(fontSize: 16, color: blackColor),
                   textAlign: TextAlign.center,
                 ),
                 Text(
                   "Phone: $phone",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: blackColor,
-                  ),
+                  style: const TextStyle(fontSize: 16, color: blackColor),
                 ),
               ],
             ),
@@ -135,16 +129,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "S.No",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
                     flex: 4,
                     child: Text(
                       "Product",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -152,8 +150,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Qty",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -161,8 +161,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Amount",
                       textAlign: TextAlign.end,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -189,16 +191,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   const Expanded(
                     flex: 4,
                     child: Text(
                       "Line Total",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -207,7 +213,9 @@ Widget getReportReceiptWidget({
                       "$lineQty",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -216,7 +224,9 @@ Widget getReportReceiptWidget({
                       lineAmount.toStringAsFixed(2),
                       textAlign: TextAlign.end,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -245,16 +255,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "S.No",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
                     flex: 4,
                     child: Text(
                       "Product",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -262,8 +276,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Qty",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -271,8 +287,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Amount",
                       textAlign: TextAlign.end,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -299,16 +317,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   const Expanded(
                     flex: 4,
                     child: Text(
                       "Parcel Total",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -317,7 +339,9 @@ Widget getReportReceiptWidget({
                       "$parcelQty",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -326,7 +350,9 @@ Widget getReportReceiptWidget({
                       parcelAmount.toStringAsFixed(2),
                       textAlign: TextAlign.end,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -355,16 +381,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "S.No",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
                     flex: 4,
                     child: Text(
                       "Product",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -372,8 +402,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Qty",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -381,8 +413,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Amount",
                       textAlign: TextAlign.end,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -409,16 +443,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   const Expanded(
                     flex: 4,
                     child: Text(
                       "AC Total",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -427,7 +465,9 @@ Widget getReportReceiptWidget({
                       "$acQty",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -436,7 +476,9 @@ Widget getReportReceiptWidget({
                       acAmount.toStringAsFixed(2),
                       textAlign: TextAlign.end,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -465,16 +507,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "S.No",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
                     flex: 4,
                     child: Text(
                       "Product",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -482,8 +528,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Qty",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -491,8 +539,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Amount",
                       textAlign: TextAlign.end,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -519,16 +569,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   const Expanded(
                     flex: 4,
                     child: Text(
                       "HD Total",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -537,7 +591,9 @@ Widget getReportReceiptWidget({
                       "$hdQty",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -546,7 +602,9 @@ Widget getReportReceiptWidget({
                       hdAmount.toStringAsFixed(2),
                       textAlign: TextAlign.end,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -575,16 +633,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "S.No",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
                     flex: 4,
                     child: Text(
                       "Product",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -592,8 +654,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Qty",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -601,8 +665,10 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "Amount",
                       textAlign: TextAlign.end,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -629,16 +695,20 @@ Widget getReportReceiptWidget({
                     child: Text(
                       "",
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   const Expanded(
                     flex: 4,
                     child: Text(
                       "Swiggy Total",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -647,7 +717,9 @@ Widget getReportReceiptWidget({
                       "$swiggyQty",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -656,7 +728,9 @@ Widget getReportReceiptWidget({
                       swiggyAmount.toStringAsFixed(2),
                       textAlign: TextAlign.end,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -664,8 +738,11 @@ Widget getReportReceiptWidget({
           ],
           /* final Qty and Amount */
           if (showItems) Divider(thickness: 4, color: blackColor),
-          _buildThermalTotalRow("Total Quantity", totalQuantity.toDouble(),
-              isBold: true),
+          _buildThermalTotalRow(
+            "Total Quantity",
+            totalQuantity.toDouble(),
+            isBold: true,
+          ),
           _buildThermalTotalRow("Total Amount", totalAmount, isBold: true),
 
           Divider(thickness: 4, color: blackColor),
@@ -777,8 +854,11 @@ Widget _buildThermalLabelRow(String label, String value) {
   );
 }
 
-Widget _buildThermalTotalRow(String label, double amount,
-    {bool isBold = false}) {
+Widget _buildThermalTotalRow(
+  String label,
+  double amount, {
+  bool isBold = false,
+}) {
   final isAmountField = label.toLowerCase().contains("amount");
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 1.0),
@@ -819,8 +899,9 @@ Future<Uint8List?> captureMonochromeReport(GlobalKey key) async {
 
     // Capture the widget as an image
     ui.Image image = await boundary.toImage(pixelRatio: 2.0);
-    ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    ByteData? byteData = await image.toByteData(
+      format: ui.ImageByteFormat.rawRgba,
+    );
 
     if (byteData == null) return null;
 
@@ -848,7 +929,8 @@ Future<Uint8List?> captureMonochromeReport(GlobalKey key) async {
 
     // Create new image from monochrome pixels
     ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(
-        Uint8List.fromList(monochromePixels));
+      Uint8List.fromList(monochromePixels),
+    );
 
     ui.ImageDescriptor descriptor = ui.ImageDescriptor.raw(
       buffer,
@@ -861,8 +943,9 @@ Future<Uint8List?> captureMonochromeReport(GlobalKey key) async {
     ui.FrameInfo frameInfo = await codec.getNextFrame();
     ui.Image monochromeImage = frameInfo.image;
 
-    ByteData? finalByteData =
-        await monochromeImage.toByteData(format: ui.ImageByteFormat.png);
+    ByteData? finalByteData = await monochromeImage.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
 
     return finalByteData?.buffer.asUint8List();
   } catch (e) {

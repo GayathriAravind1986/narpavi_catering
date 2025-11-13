@@ -24,7 +24,7 @@ Widget getThermalReceiptWidget({
   required String status,
 }) {
   return Container(
-    width: 384, // Standard thermal printer width
+    width: 280, // Standard thermal printer width
     color: whiteColor, // Ensure white background
     child: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -45,26 +45,26 @@ Widget getThermalReceiptWidget({
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
-                //       Text(
-                //         address,
-                //         style: const TextStyle(fontSize: 16, color: blackColor),
-                //         textAlign: TextAlign.center,
-                //       ),
-                //       if (gst != "N/A")
-                //         Text(
-                //           "GST: $gst",
-                //           style: const TextStyle(
-                //             fontSize: 16, // Increased from 12
-                //             color: blackColor,
-                //           ),
-                //         ),
-                //       Text(
-                //         "Phone: $phone",
-                //         style: const TextStyle(
-                //           fontSize: 16, // Increased from 12
-                //           color: blackColor,
-                //         ),
-                //       ),
+                Text(
+                  address,
+                  style: const TextStyle(fontSize: 16, color: blackColor),
+                  textAlign: TextAlign.center,
+                ),
+                if (gst != "N/A")
+                  Text(
+                    "GST: $gst",
+                    style: const TextStyle(
+                      fontSize: 16, // Increased from 12
+                      color: blackColor,
+                    ),
+                  ),
+                Text(
+                  "Phone: $phone",
+                  style: const TextStyle(
+                    fontSize: 16, // Increased from 12
+                    color: blackColor,
+                  ),
+                ),
               ],
             ),
           ),
@@ -384,7 +384,7 @@ Future<Uint8List?> captureMonochromeReceipt(GlobalKey key) async {
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
     // Capture the widget as an image
-    ui.Image image = await boundary.toImage(pixelRatio: 2.0);
+    ui.Image image = await boundary.toImage(pixelRatio: 1.0);
     ByteData? byteData = await image.toByteData(
       format: ui.ImageByteFormat.rawRgba,
     );

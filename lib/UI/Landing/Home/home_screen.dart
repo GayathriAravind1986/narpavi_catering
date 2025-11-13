@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -35,6 +37,7 @@ import 'package:ramanas_waiter/UI/Landing/Home/Widget/category_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as img;
 import 'package:ramanas_waiter/UI/IminHelper/printer_helper.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class HomePage extends StatelessWidget {
   final from;
@@ -110,7 +113,8 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
   GetWaiterModel getWaiterModel = GetWaiterModel();
   PostGenerateOrderModel postGenerateOrderModel = PostGenerateOrderModel();
   UpdateGenerateOrderModel updateGenerateOrderModel = UpdateGenerateOrderModel();
-
+  late SunmiPrinter sunmiPrinter;
+  bool _isSunmiDevice = false;
   final ScrollController _scrollController = ScrollController();
   List<Rows> allProducts = [];
   bool isLoadingMore = false;
@@ -225,6 +229,68 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
     }
     return DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
   }
+  /// Sunmi printer
+  Future<void> _printBillToSunmi(BuildContext context) async {
+    if (!_isSunmiDevice) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("This device is not a Sunmi printer device"),
+          backgroundColor: redColor,
+        ),
+      );
+      return;
+    }
+    try {
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: appPrimaryColor),
+              SizedBox(height: 16),
+              Text(
+                "Printing to Sunmi device...",
+                style: TextStyle(color: whiteColor),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      await WidgetsBinding.instance.endOfFrame;
+
+      Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
+
+      if (imageBytes == null) {
+        throw Exception("Image capture failed: normalReceiptKey returned null");
+      }
+
+      await SunmiPrinter.printImage(imageBytes);
+      await SunmiPrinter.lineWrap(2);
+      await SunmiPrinter.cutPaper();
+
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bill printed successfully on Sunmi device!"),
+          backgroundColor: greenColor,
+        ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Sunmi print failed: $e"),
+          backgroundColor: redColor,
+        ),
+      );
+    }
+  }
+  /// bluetooth
   Future<void> _scanBluetoothDevices() async {
     if (_isScanning) return;
 
@@ -405,8 +471,7 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
   }
 
   /// LAN KOT Print
-  Future<void> _startKOTPrintingThermalOnly(
-      BuildContext context, String printerIp) async {
+  Future<void> _startKOTPrintingThermalOnly(BuildContext context, String printerIp) async {
     try {
       showDialog(
         context: context,
@@ -490,6 +555,7 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
       );
     }
   }
+
   Future<void> _startNormalPrintingThermalOnly(BuildContext context, String printerIp) async {
     try {
       showDialog(
@@ -650,39 +716,39 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
                     child: Column(
                       children: [
                         // Normal Bill Receipt
-                        // RepaintBoundary(
-                        //   key: normalReceiptKey,
-                        //   child: getThermalReceiptWidget(
-                        //     businessName: businessName,
-                        //     address: address,
-                        //     gst: gst,
-                        //     items: items,
-                        //     finalTax: finalTax,
-                        //     tax: taxPercent,
-                        //     paidBy: paymentMethod,
-                        //     tamilTagline: '',
-                        //     phone: phone,
-                        //     subtotal: subTotal,
-                        //     total: total,
-                        //     orderNumber: orderNumber,
-                        //     tableName: tableName,
-                        //     waiterName: waiterName,
-                        //     orderType: orderType,
-                        //     date: date,
-                        //     status: orderStatus,
-                        //   ),
-                        // ),
+                        RepaintBoundary(
+                          key: normalReceiptKey,
+                          child: getThermalReceiptWidget(
+                            businessName: businessName,
+                            address: address,
+                            gst: gst,
+                            items: items,
+                            finalTax: finalTax,
+                            tax: taxPercent,
+                            paidBy: paymentMethod,
+                            tamilTagline: '',
+                            phone: phone,
+                            subtotal: subTotal,
+                            total: total,
+                            orderNumber: orderNumber,
+                            tableName: tableName,
+                            waiterName: waiterName,
+                            orderType: orderType,
+                            date: date,
+                            status: orderStatus,
+                          ),
+                        ),
 
-                        //const SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         // KOT Receipt (for kitchen)
-                       // if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
+                        if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
                           RepaintBoundary(
                             key: kotReceiptKey,
                             child: getThermalReceiptKOTWidget(
                               businessName: businessName,
                               address: address,
                               gst: gst,
-                              items: items,
+                              items: kotItems,
                               paidBy: paymentMethod,
                               tamilTagline: '',
                               phone: phone,
@@ -707,56 +773,75 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
                 ),
               ),
         Positioned(
-          bottom: 16,
+          bottom: postGenerateOrderModel.invoice!.kot!.isNotEmpty ? 2 : 16,
           left: 16,
           right: 16,
           child:  Column(
             children: [
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
+              //       ElevatedButton.icon(
+              //         onPressed: () {
+              //           _startKOTPrintingThermalOnly(
+              //             context,
+              //             ipController.text.trim(),
+              //           );
+              //         },
+              //         icon: const Icon(Icons.print),
+              //         label: const Text("KOT(LAN)"),
+              //         style: ElevatedButton.styleFrom(
+              //           backgroundColor: greenColor,
+              //           foregroundColor: whiteColor,
+              //         ),
+              //       ),
+              //     horizontalSpace(width: 10),
+              //     if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
+              //       ElevatedButton.icon(
+              //         onPressed: () {
+              //           _selectBluetoothPrinter(context);
+              //         },
+              //         icon: const Icon(Icons.bluetooth),
+              //         label: const Text("KOT(BT)"),
+              //         style: ElevatedButton.styleFrom(
+              //           backgroundColor: greenColor,
+              //           foregroundColor: whiteColor,
+              //         ),
+              //       ),
+              //   ],
+              // ),
+              // verticalSpace(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  //if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        _startKOTPrintingThermalOnly(
-                          context,
-                          ipLanController.text.trim(),
-                        );
-                      },
-                      icon: const Icon(Icons.print),
-                      label: const Text("Print(LAN)"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: greenColor,
-                        foregroundColor: whiteColor,
-                      ),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      WidgetsBinding.instance
+                          .addPostFrameCallback((_) async {
+                         await _printBillToSunmi(context);
+                      });
+                    },
+                    icon: const Icon(Icons.print),
+                    label: const Text("Print(Sunmi)"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: greenColor,
+                      foregroundColor: whiteColor,
                     ),
-                  // horizontalSpace(width: 10),
-                  //   ElevatedButton.icon(
-                  //     onPressed: () {
-                  //       _startNormalPrintingThermalOnly(context,ipLanController.text.trim());
-                  //     },
-                  //     icon: const Icon(Icons.print),
-                  //     label: const Text("Print(LAN)"),
-                  //     style: ElevatedButton.styleFrom(
-                  //       backgroundColor: greenColor,
-                  //       foregroundColor: whiteColor,
-                  //     ),
-                  //   ),
-                  // horizontalSpace(width: 10),
-
+                  ),
+                  horizontalSpace(width: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    label: const Text("CLOSE"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appPrimaryColor,
+                      foregroundColor: whiteColor,
+                    ),
+                  ),
                 ],
-              ),
-              verticalSpace(height:10),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                label: const Text("CLOSE"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: appPrimaryColor,
-                  foregroundColor: whiteColor,
-                ),
-              ),
+              )
             ],
           )
         )
@@ -850,36 +935,36 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
                     ),
                     child: Column(
                       children: [
-                        // RepaintBoundary(
-                        //   key: normalReceiptKey,
-                        //   child: getThermalReceiptWidget(
-                        //       businessName: businessName,
-                        //       address: address,
-                        //       gst: gst,
-                        //       items: items,
-                        //       finalTax: finalTax,
-                        //       tax: taxPercent,
-                        //       paidBy: paymentMethod,
-                        //       tamilTagline: '',
-                        //       phone: phone,
-                        //       subtotal: subTotal,
-                        //       total: total,
-                        //       orderNumber: orderNumber,
-                        //       tableName: tableName,
-                        //       waiterName: waiterName,
-                        //       orderType: orderType,
-                        //       date: date,
-                        //       status: orderStatus),
-                        // ),
-                        // const SizedBox(height: 20),
-                      //  if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
+                        RepaintBoundary(
+                          key: normalReceiptKey,
+                          child: getThermalReceiptWidget(
+                              businessName: businessName,
+                              address: address,
+                              gst: gst,
+                              items: items,
+                              finalTax: finalTax,
+                              tax: taxPercent,
+                              paidBy: paymentMethod,
+                              tamilTagline: '',
+                              phone: phone,
+                              subtotal: subTotal,
+                              total: total,
+                              orderNumber: orderNumber,
+                              tableName: tableName,
+                              waiterName: waiterName,
+                              orderType: orderType,
+                              date: date,
+                              status: orderStatus),
+                        ),
+                        const SizedBox(height: 20),
+                       if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
                           RepaintBoundary(
                             key: kotReceiptKey,
                             child: getThermalReceiptKOTWidget(
                               businessName: businessName,
                               address: address,
                               gst: gst,
-                              items: items,
+                              items: kotItems,
                               paidBy: paymentMethod,
                               tamilTagline: '',
                               phone: phone,
@@ -902,55 +987,76 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
                 ),
               ),
         Positioned(
-          bottom: 16,
+          bottom: updateGenerateOrderModel.invoice!.kot!.isNotEmpty
+              ? 2
+              : 16,
           left: 16,
           right: 16,
           child:Column(
             children: [
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
+              //       ElevatedButton.icon(
+              //         onPressed: () {
+              //           _startKOTPrintingThermalOnly(
+              //             context,
+              //             ipController.text.trim(),
+              //           );
+              //         },
+              //         icon: const Icon(Icons.print),
+              //         label: const Text("KOT(LAN)"),
+              //         style: ElevatedButton.styleFrom(
+              //           backgroundColor: greenColor,
+              //           foregroundColor: whiteColor,
+              //         ),
+              //       ),
+              //     horizontalSpace(width: 10),
+              //     if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
+              //       ElevatedButton.icon(
+              //         onPressed: () {
+              //           _selectBluetoothPrinter(context);
+              //         },
+              //         icon: const Icon(Icons.bluetooth),
+              //         label: const Text("KOT(BT)"),
+              //         style: ElevatedButton.styleFrom(
+              //           backgroundColor: greenColor,
+              //           foregroundColor: whiteColor,
+              //         ),
+              //       ),
+              //   ],
+              // ),
+              // verticalSpace(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        _startKOTPrintingThermalOnly(
-                          context,
-                          ipLanController.text.trim(),
-                        );
-                      },
-                      icon: const Icon(Icons.print),
-                      label: const Text("Print(LAN)"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: greenColor,
-                        foregroundColor: whiteColor,
-                      ),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      WidgetsBinding.instance
+                          .addPostFrameCallback((_) async {
+                         await _printBillToSunmi(context);
+                      });
+                    },
+                    icon: const Icon(Icons.print),
+                    label: const Text("Print(Sunmi)"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: greenColor,
+                      foregroundColor: whiteColor,
                     ),
-                  // horizontalSpace(width: 10),
-                  // ElevatedButton.icon(
-                  //   onPressed: () {
-                  //     _startNormalPrintingThermalOnly(context,ipLanController.text.trim());
-                  //   },
-                  //   icon: const Icon(Icons.print),
-                  //   label: const Text("Print(LAN)"),
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: greenColor,
-                  //     foregroundColor: whiteColor,
-                  //   ),
-                  // ),
-                  // horizontalSpace(width: 10),
-
+                  ),
+                  horizontalSpace(width: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    label: const Text("CLOSE"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appPrimaryColor,
+                      foregroundColor: whiteColor,
+                    ),
+                  ),
                 ],
-              ),
-              verticalSpace(height: 10),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                label: const Text("CLOSE"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: appPrimaryColor,
-                  foregroundColor: whiteColor,
-                ),
               ),
             ],
           ))
@@ -1093,6 +1199,9 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+   if (Platform.isAndroid) {
+      _checkIfSunmiDevice();
+    }
     int initialIndex = (widget.isEditingOrder == true) ? 1 : 0;
 
     _tabController = TabController(
@@ -1130,7 +1239,28 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
     });
   }
   bool? productExists;
+  Future<void> _checkIfSunmiDevice() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
 
+      // Check if manufacturer is SUNMI
+      final isSunmi = androidInfo.manufacturer.toUpperCase().contains('SUNMI');
+
+      setState(() => _isSunmiDevice = isSunmi);
+
+      if (isSunmi) {
+        debugPrint('✅ Running on Sunmi device: ${androidInfo.model}');
+      } else {
+        debugPrint(
+          'ℹ️ Not a Sunmi device: ${androidInfo.manufacturer} ${androidInfo.model}',
+        );
+      }
+    } catch (e) {
+      setState(() => _isSunmiDevice = false);
+      debugPrint('❌ Error checking device: $e');
+    }
+  }
   @override
   void dispose() {
     for (var controller in quantityControllers.values) {
@@ -1740,14 +1870,6 @@ class HomePageViewState extends State<HomePageView>  with TickerProviderStateMix
                                                             )['qty'] ??
                                                         0;
                                                   }
-
-                                                  debugPrint(
-                                                    "sizeWidth:${MediaQuery.of(context).size.width}",
-                                                  );
-                                                  debugPrint(
-                                                    "sizeHeight:${MediaQuery.of(context).size.height}",
-                                                  );
-
                                                   TextEditingController
                                                   getQuantityController(
                                                     String productId,

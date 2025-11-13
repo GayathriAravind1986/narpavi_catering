@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +13,7 @@ import 'package:ramanas_waiter/UI/KOT_printer_helper/printer_kot_helper.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class ThermalReceiptDialog extends StatefulWidget {
   final GetViewOrderModel getViewOrderModel;
@@ -23,11 +25,12 @@ class ThermalReceiptDialog extends StatefulWidget {
 }
 
 class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
+  late SunmiPrinter sunmiPrinter;
   GlobalKey kotReceiptKey = GlobalKey();
   GlobalKey normalReceiptKey = GlobalKey();
   List<BluetoothInfo> _devices = [];
   bool _isScanning = false;
-
+  bool _isSunmiDevice = false;
   final TextEditingController ipController = TextEditingController();
   final TextEditingController ipLanController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -35,6 +38,96 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
   @override
   void initState() {
     super.initState();
+    if (kIsWeb) {
+      // Mock service for web
+    } else if (Platform.isAndroid) {
+      _checkIfSunmiDevice();
+    }
+  }
+
+  Future<void> _checkIfSunmiDevice() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+
+      // Check if manufacturer is SUNMI
+      final isSunmi = androidInfo.manufacturer.toUpperCase().contains('SUNMI');
+
+      setState(() => _isSunmiDevice = isSunmi);
+
+      if (isSunmi) {
+        debugPrint('✅ Running on Sunmi device: ${androidInfo.model}');
+      } else {
+        debugPrint(
+          'ℹ️ Not a Sunmi device: ${androidInfo.manufacturer} ${androidInfo.model}',
+        );
+      }
+    } catch (e) {
+      setState(() => _isSunmiDevice = false);
+      debugPrint('❌ Error checking device: $e');
+    }
+  }
+
+  /// Sunmi printer
+  Future<void> _printBillToSunmi(BuildContext context) async {
+    if (!_isSunmiDevice) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("This device is not a Sunmi printer device"),
+          backgroundColor: redColor,
+        ),
+      );
+      return;
+    }
+    try {
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: appPrimaryColor),
+              SizedBox(height: 16),
+              Text(
+                "Printing to Sunmi device...",
+                style: TextStyle(color: whiteColor),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      await WidgetsBinding.instance.endOfFrame;
+
+      Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
+
+      if (imageBytes == null) {
+        throw Exception("Image capture failed: normalReceiptKey returned null");
+      }
+
+      await SunmiPrinter.printImage(imageBytes);
+      await SunmiPrinter.lineWrap(2);
+      await SunmiPrinter.cutPaper();
+
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bill printed successfully on Sunmi device!"),
+          backgroundColor: greenColor,
+        ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Sunmi print failed: $e"),
+          backgroundColor: redColor,
+        ),
+      );
+    }
   }
 
   Future<void> _scanBluetoothDevices() async {
@@ -490,61 +583,38 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                       child: Column(
                         children: [
                           // Header
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     Center(
-                          //       child: Text(
-                          //         "Order# $orderNumber",
-                          //         style: TextStyle(
-                          //           fontSize: 16,
-                          //           fontWeight: FontWeight.bold,
-                          //         ),
-                          //       ),
-                          //     ),
-                          //     IconButton(
-                          //       onPressed: () => Navigator.pop(context),
-                          //       icon: const Icon(Icons.close),
-                          //     ),
-                          //   ],
-                          // ),
-                          // const SizedBox(height: 16),
-                          // RepaintBoundary(
-                          //   key: normalReceiptKey,
-                          //   child: getThermalReceiptWidget(
-                          //     businessName: businessName,
-                          //     address: address,
-                          //     gst: gst,
-                          //     items: items,
-                          //     finalTax: finalTax,
-                          //     tax: taxAmount,
-                          //     paidBy: paymentMethod,
-                          //     tamilTagline: '',
-                          //     phone: phone,
-                          //     subtotal: subTotal,
-                          //     total: total,
-                          //     orderNumber: orderNumber,
-                          //     tableName: tableName,
-                          //     waiterName: waiterName,
-                          //     orderType: orderType,
-                          //     date: date,
-                          //     status: orderStatus,
-                          //   ),
-                          // ),
-                          // const SizedBox(height: 20),
-                          //if (invoice.kotItems!.isNotEmpty)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Center(
+                                child: Text(
+                                  "Order# $orderNumber",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(Icons.close),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                           RepaintBoundary(
-                            key: kotReceiptKey,
-                            child: getThermalReceiptKOTWidget(
+                            key: normalReceiptKey,
+                            child: getThermalReceiptWidget(
                               businessName: businessName,
                               address: address,
                               gst: gst,
                               items: items,
+                              finalTax: finalTax,
+                              tax: taxAmount,
                               paidBy: paymentMethod,
                               tamilTagline: '',
                               phone: phone,
                               subtotal: subTotal,
-                              tax: taxAmount,
                               total: total,
                               orderNumber: orderNumber,
                               tableName: tableName,
@@ -554,6 +624,29 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                               status: orderStatus,
                             ),
                           ),
+                          const SizedBox(height: 20),
+                          if (invoice.kotItems!.isNotEmpty)
+                            RepaintBoundary(
+                              key: kotReceiptKey,
+                              child: getThermalReceiptKOTWidget(
+                                businessName: businessName,
+                                address: address,
+                                gst: gst,
+                                items: kotItems,
+                                paidBy: paymentMethod,
+                                tamilTagline: '',
+                                phone: phone,
+                                subtotal: subTotal,
+                                tax: taxAmount,
+                                total: total,
+                                orderNumber: orderNumber,
+                                tableName: tableName,
+                                waiterName: waiterName,
+                                orderType: orderType,
+                                date: date,
+                                status: orderStatus,
+                              ),
+                            ),
 
                           const SizedBox(height: 10),
                         ],
@@ -567,52 +660,84 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                   right: 16,
                   child: Column(
                     children: [
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   children: [
+                      //     if (invoice.kotItems!.isNotEmpty)
+                      //       ElevatedButton.icon(
+                      //         onPressed: () {
+                      //           _startKOTPrintingThermalOnly(
+                      //             context,
+                      //             ipController.text.trim(),
+                      //           );
+                      //         },
+                      //         icon: const Icon(Icons.print),
+                      //         label: const Text("KOT(LAN)"),
+                      //         style: ElevatedButton.styleFrom(
+                      //           backgroundColor: greenColor,
+                      //           foregroundColor: whiteColor,
+                      //         ),
+                      //       ),
+                      //     horizontalSpace(width: 10),
+                      //     if (invoice.kotItems!.isNotEmpty)
+                      //       ElevatedButton.icon(
+                      //         onPressed: () {
+                      //           _selectBluetoothPrinter(context);
+                      //         },
+                      //         icon: const Icon(Icons.bluetooth),
+                      //         label: const Text("KOT(BT)"),
+                      //         style: ElevatedButton.styleFrom(
+                      //           backgroundColor: greenColor,
+                      //           foregroundColor: whiteColor,
+                      //         ),
+                      //       ),
+                      //   ],
+                      // ),
+                      // verticalSpace(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // if (invoice.kotItems!.isNotEmpty)
+                          // if (_isSunmiDevice)
                           ElevatedButton.icon(
-                            onPressed: () {
-                              _startKOTPrintingThermalOnly(
-                                context,
-                                ipLanController.text.trim(),
-                              );
+                            onPressed: () async {
+                              WidgetsBinding.instance.addPostFrameCallback((
+                                _,
+                              ) async {
+                                await _printBillToSunmi(context);
+                              });
                             },
                             icon: const Icon(Icons.print),
-                            label: const Text("Print(LAN)"),
+                            label: const Text("Print(Sunmi)"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: greenColor,
                               foregroundColor: whiteColor,
                             ),
                           ),
-                          // horizontalSpace(width: 10),
-                          // ElevatedButton.icon(
-                          //   onPressed: () {
-                          //     _startNormalPrintingThermalOnly(
-                          //       context,
-                          //       ipLanController.text.trim(),
-                          //     );
-                          //   },
-                          //   icon: const Icon(Icons.print),
-                          //   label: const Text("Print(LAN)"),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: greenColor,
-                          //     foregroundColor: whiteColor,
+                          // if (!_isSunmiDevice)
+                          //   Tooltip(
+                          //     message: "Only available on Sunmi devices",
+                          //     child: ElevatedButton.icon(
+                          //       onPressed: null, // Disabled
+                          //       icon: const Icon(Icons.print),
+                          //       label: const Text("Print(Sunmi)"),
+                          //       style: ElevatedButton.styleFrom(
+                          //         backgroundColor: redColor,
+                          //         foregroundColor: whiteColor,
+                          //       ),
+                          //     ),
                           //   ),
-                          // ),
-                          // horizontalSpace(width: 10),
+                          horizontalSpace(width: 10),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            label: const Text("CLOSE"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: appPrimaryColor,
+                              foregroundColor: whiteColor,
+                            ),
+                          ),
                         ],
-                      ),
-                      verticalSpace(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        label: const Text("CLOSE"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appPrimaryColor,
-                          foregroundColor: whiteColor,
-                        ),
                       ),
                     ],
                   ),

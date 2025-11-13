@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart' show DeviceInfoPlugin;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -5,7 +8,9 @@ import 'package:ramanas_waiter/ModelClass/Report/Get_report_with_ordertype_model
 import 'package:ramanas_waiter/Reusable/color.dart';
 import 'package:ramanas_waiter/Reusable/space.dart';
 import 'package:ramanas_waiter/Reusable/text_styles.dart';
+import 'package:ramanas_waiter/UI/IminHelper/printer_helper.dart';
 import 'package:ramanas_waiter/UI/Landing/Report/Report_helper.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class ThermalReportReceiptDialog extends StatefulWidget {
   final GetReportModel getReportModel;
@@ -23,19 +28,102 @@ class ThermalReportReceiptDialog extends StatefulWidget {
 
 class _ThermalReportReceiptDialogState
     extends State<ThermalReportReceiptDialog> {
-  //  late IPrinterService printerService;
+  late SunmiPrinter sunmiPrinter;
   final GlobalKey reportKey = GlobalKey();
-
+  bool _isSunmiDevice = false;
   @override
   void initState() {
     super.initState();
-    // if (kIsWeb) {
-    //   printerService = MockPrinterService();
-    // } else if (Platform.isAndroid) {
-    //   printerService = RealPrinterService();
-    // } else {
-    //   printerService = MockPrinterService();
-    // }
+    if (kIsWeb) {
+      // Mock service for web
+    } else if (Platform.isAndroid) {
+      _checkIfSunmiDevice();
+    }
+  }
+
+  Future<void> _checkIfSunmiDevice() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+
+      // Check if manufacturer is SUNMI
+      final isSunmi = androidInfo.manufacturer.toUpperCase().contains('SUNMI');
+
+      setState(() => _isSunmiDevice = isSunmi);
+
+      if (isSunmi) {
+        debugPrint('✅ Running on Sunmi device: ${androidInfo.model}');
+      } else {
+        debugPrint(
+          'ℹ️ Not a Sunmi device: ${androidInfo.manufacturer} ${androidInfo.model}',
+        );
+      }
+    } catch (e) {
+      setState(() => _isSunmiDevice = false);
+      debugPrint('❌ Error checking device: $e');
+    }
+  }
+
+  /// Sunmi printer
+  Future<void> _printBillToSunmi(BuildContext context) async {
+    if (!_isSunmiDevice) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("This device is not a Sunmi printer device"),
+          backgroundColor: redColor,
+        ),
+      );
+      return;
+    }
+    try {
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: appPrimaryColor),
+              SizedBox(height: 16),
+              Text(
+                "Printing to Sunmi device...",
+                style: TextStyle(color: whiteColor),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      await WidgetsBinding.instance.endOfFrame;
+
+      Uint8List? imageBytes = await captureMonochromeReceipt(reportKey);
+
+      if (imageBytes == null) {
+        throw Exception("Image capture failed: normalReceiptKey returned null");
+      }
+
+      await SunmiPrinter.printImage(imageBytes);
+      await SunmiPrinter.lineWrap(2);
+      await SunmiPrinter.cutPaper();
+
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bill printed successfully on Sunmi device!"),
+          backgroundColor: greenColor,
+        ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Sunmi print failed: $e"),
+          backgroundColor: redColor,
+        ),
+      );
+    }
   }
 
   @override
@@ -246,66 +334,33 @@ class _ThermalReportReceiptDialogState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // if (invoice.kotItems!.isNotEmpty)
                           ElevatedButton.icon(
                             onPressed: () async {
-                              try {
-                                await Future.delayed(
-                                  const Duration(milliseconds: 300),
-                                );
-                                await WidgetsBinding.instance.endOfFrame;
-                                Uint8List? imageBytes =
-                                    await captureMonochromeReport(reportKey);
-
-                                if (imageBytes != null) {
-                                  // await printerService.init();
-                                  // await printerService.printBitmap(imageBytes);
-                                  // // await Future.delayed(
-                                  // //     const Duration(seconds: 2));
-                                  // await printerService.fullCut();
-                                  Navigator.pop(context);
-                                }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Print failed: $e")),
-                                );
-                              }
+                              WidgetsBinding.instance.addPostFrameCallback((
+                                _,
+                              ) async {
+                                await _printBillToSunmi(context);
+                              });
                             },
                             icon: const Icon(Icons.print),
-                            label: const Text("Print(LAN)"),
+                            label: const Text("Print(Sunmi)"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: greenColor,
                               foregroundColor: whiteColor,
                             ),
                           ),
-                          // horizontalSpace(width: 10),
-                          // ElevatedButton.icon(
-                          //   onPressed: () {
-                          //     _startNormalPrintingThermalOnly(
-                          //       context,
-                          //       ipLanController.text.trim(),
-                          //     );
-                          //   },
-                          //   icon: const Icon(Icons.print),
-                          //   label: const Text("Print(LAN)"),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: greenColor,
-                          //     foregroundColor: whiteColor,
-                          //   ),
-                          // ),
-                          // horizontalSpace(width: 10),
+                          horizontalSpace(width: 10),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            label: const Text("CLOSE"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: appPrimaryColor,
+                              foregroundColor: whiteColor,
+                            ),
+                          ),
                         ],
-                      ),
-                      verticalSpace(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        label: const Text("CLOSE"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appPrimaryColor,
-                          foregroundColor: whiteColor,
-                        ),
                       ),
                     ],
                   ),
