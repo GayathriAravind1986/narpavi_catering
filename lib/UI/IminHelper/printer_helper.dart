@@ -24,7 +24,7 @@ Widget getThermalReceiptWidget({
   required String status,
 }) {
   return Container(
-    width: 280, // Standard thermal printer width
+    width: 384, // Standard thermal printer width
     color: whiteColor, // Ensure white background
     child: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -193,7 +193,7 @@ Widget getThermalReceiptWidget({
           //     ),
           //   ),
           // ),
-          // const SizedBox(height: 10),
+          const SizedBox(height: 10),
         ],
       ),
     ),
@@ -384,7 +384,7 @@ Future<Uint8List?> captureMonochromeReceipt(GlobalKey key) async {
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
     // Capture the widget as an image
-    ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+    ui.Image image = await boundary.toImage(pixelRatio: 1.3);
     ByteData? byteData = await image.toByteData(
       format: ui.ImageByteFormat.rawRgba,
     );

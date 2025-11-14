@@ -36,7 +36,7 @@ Widget getReportReceiptWidget({
   required bool showItems,
 }) {
   return Container(
-    width: 280,
+    width: 384,
     color: whiteColor,
     child: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -758,7 +758,7 @@ Widget getReportReceiptWidget({
               ),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 40),
           // const Center(
           //   child: Text(
           //     "Powered By",
@@ -779,7 +779,7 @@ Widget getReportReceiptWidget({
           //     ),
           //   ),
           // ),
-          const SizedBox(height: 80), // Footer padding
+          //const SizedBox(height: 80), // Footer padding
         ],
       ),
     ),
@@ -898,7 +898,7 @@ Future<Uint8List?> captureMonochromeReport(GlobalKey key) async {
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
     // Capture the widget as an image
-    ui.Image image = await boundary.toImage(pixelRatio: 2.0);
+    ui.Image image = await boundary.toImage(pixelRatio: 1.3);
     ByteData? byteData = await image.toByteData(
       format: ui.ImageByteFormat.rawRgba,
     );
