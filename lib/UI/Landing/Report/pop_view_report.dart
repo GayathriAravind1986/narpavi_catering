@@ -8,7 +8,6 @@ import 'package:ramanas_waiter/ModelClass/Report/Get_report_with_ordertype_model
 import 'package:ramanas_waiter/Reusable/color.dart';
 import 'package:ramanas_waiter/Reusable/space.dart';
 import 'package:ramanas_waiter/Reusable/text_styles.dart';
-import 'package:ramanas_waiter/UI/IminHelper/printer_helper.dart';
 import 'package:ramanas_waiter/UI/Landing/Report/Report_helper.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
@@ -98,7 +97,7 @@ class _ThermalReportReceiptDialogState
       await Future.delayed(const Duration(milliseconds: 500));
       await WidgetsBinding.instance.endOfFrame;
 
-      Uint8List? imageBytes = await captureMonochromeReceipt(reportKey);
+      Uint8List? imageBytes = await captureMonochromeReport(reportKey);
 
       if (imageBytes == null) {
         throw Exception("Image capture failed: normalReceiptKey returned null");
