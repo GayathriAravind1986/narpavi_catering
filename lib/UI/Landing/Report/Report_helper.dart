@@ -36,10 +36,10 @@ Widget getReportReceiptWidget({
   required bool showItems,
 }) {
   return Container(
-    width: 384,
+    width: 370,
     color: whiteColor,
     child: Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -758,7 +758,7 @@ Widget getReportReceiptWidget({
               ),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 10),
           // const Center(
           //   child: Text(
           //     "Powered By",
@@ -878,7 +878,7 @@ Widget _buildThermalTotalRow(
         Text(
           isAmountField
               ? '₹${amount.toStringAsFixed(2)}'
-              : amount.toStringAsFixed(2),
+              : amount.toStringAsFixed(0),
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontSize: isBold
@@ -897,8 +897,8 @@ Future<Uint8List?> captureMonochromeReport(GlobalKey key) async {
     RenderRepaintBoundary boundary =
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
-    // Capture the widget as an image
-    ui.Image image = await boundary.toImage(pixelRatio: 1.3);
+    // Capture at higher resolution
+    ui.Image image = await boundary.toImage(pixelRatio: 1.5);
     ByteData? byteData = await image.toByteData(
       format: ui.ImageByteFormat.rawRgba,
     );
@@ -906,25 +906,42 @@ Future<Uint8List?> captureMonochromeReport(GlobalKey key) async {
     if (byteData == null) return null;
 
     Uint8List pixels = byteData.buffer.asUint8List();
-    int width = image.width;
-    int height = image.height;
+    int originalWidth = image.width;
+    int originalHeight = image.height;
 
-    // Convert to monochrome (black and white only)
+    // Sunmi printer expects exactly 384 pixels width
+    int targetWidth = 384;
+
+    // Scale down the image to fit printer width
+    double scale = targetWidth / originalWidth;
+    int scaledWidth = targetWidth;
+    int scaledHeight = (originalHeight * scale).round();
+
+    // Convert to monochrome with scaling
     List<int> monochromePixels = [];
 
-    for (int i = 0; i < pixels.length; i += 4) {
-      int r = pixels[i];
-      int g = pixels[i + 1];
-      int b = pixels[i + 2];
-      int a = pixels[i + 3];
+    for (int y = 0; y < scaledHeight; y++) {
+      for (int x = 0; x < scaledWidth; x++) {
+        // Map scaled coordinates back to original image
+        int origX = (x / scale).round();
+        int origY = (y / scale).round();
 
-      // Calculate luminance
-      double luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+        if (origX < originalWidth && origY < originalHeight) {
+          int pixelIndex = (origY * originalWidth + origX) * 4;
 
-      // Convert to black or white based on threshold
-      int value = luminance > 128 ? 255 : 0;
+          if (pixelIndex + 3 < pixels.length) {
+            int r = pixels[pixelIndex];
+            int g = pixels[pixelIndex + 1];
+            int b = pixels[pixelIndex + 2];
+            int a = pixels[pixelIndex + 3];
 
-      monochromePixels.addAll([value, value, value, a]);
+            double luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+            int value = luminance > 128 ? 255 : 0;
+
+            monochromePixels.addAll([value, value, value, a]);
+          }
+        }
+      }
     }
 
     // Create new image from monochrome pixels
@@ -934,8 +951,8 @@ Future<Uint8List?> captureMonochromeReport(GlobalKey key) async {
 
     ui.ImageDescriptor descriptor = ui.ImageDescriptor.raw(
       buffer,
-      width: width,
-      height: height,
+      width: scaledWidth,
+      height: scaledHeight,
       pixelFormat: ui.PixelFormat.rgba8888,
     );
 

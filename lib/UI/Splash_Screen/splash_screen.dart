@@ -59,18 +59,14 @@ class _SplashScreenState extends State<SplashScreen>
   void onTimerFinished() {
     if (mounted) {
       token == null && role == null
-          ?
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      )
-      :
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const DashboardScreen(),
-          ),
-          (Route<dynamic> route) => false,
-        );
+          ? Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            )
+          : Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const DashboardScreen()),
+              (Route<dynamic> route) => false,
+            );
     }
   }
 
@@ -98,7 +94,14 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Opacity(opacity: _controller.value, child: child),
                 );
               },
-              child: Image.asset(Images.logoWithName, fit: BoxFit.contain),
+              child: ClipOval(
+                child: Image.asset(
+                  Images.logoWithName,
+                  width: 180,
+                  height: 180,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
         ],

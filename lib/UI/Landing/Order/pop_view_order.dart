@@ -563,8 +563,8 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
         : Dialog(
             backgroundColor: Colors.transparent,
             insetPadding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 20,
+              horizontal: 20,
+              vertical: 40,
             ),
             child: Stack(
               children: [
@@ -604,24 +604,26 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                           const SizedBox(height: 16),
                           RepaintBoundary(
                             key: normalReceiptKey,
-                            child: getThermalReceiptWidget(
-                              businessName: businessName,
-                              address: address,
-                              gst: gst,
-                              items: items,
-                              finalTax: finalTax,
-                              tax: taxAmount,
-                              paidBy: paymentMethod,
-                              tamilTagline: '',
-                              phone: phone,
-                              subtotal: subTotal,
-                              total: total,
-                              orderNumber: orderNumber,
-                              tableName: tableName,
-                              waiterName: waiterName,
-                              orderType: orderType,
-                              date: date,
-                              status: orderStatus,
+                            child: Center(
+                              child: getThermalReceiptWidget(
+                                businessName: businessName,
+                                address: address,
+                                gst: gst,
+                                items: items,
+                                finalTax: finalTax,
+                                tax: taxAmount,
+                                paidBy: paymentMethod,
+                                tamilTagline: '',
+                                phone: phone,
+                                subtotal: subTotal,
+                                total: total,
+                                orderNumber: orderNumber,
+                                tableName: tableName,
+                                waiterName: waiterName,
+                                orderType: orderType,
+                                date: date,
+                                status: orderStatus,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -655,7 +657,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                   ),
                 ),
                 Positioned(
-                  bottom: 16,
+                  bottom: 50,
                   left: 16,
                   right: 16,
                   child: Column(
